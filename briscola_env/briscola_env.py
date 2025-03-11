@@ -12,6 +12,8 @@ class BriscolaEnv(gym.Env):
         super().__init__()
         # 3 cards to play (need to mask in the case that the player has less than 3 cards)
         self.action_space = spaces.Discrete(3)
+		# Tips on observation space embedding:
+        # https://rlcard.org/games.html
         # Our hand (3)
         # The trick so far (3)
         # The Briscola (1)
