@@ -15,7 +15,7 @@ def test_game_embedding():
     # Make games and embed them all hope for no errors
     for _ in range(10_000):
         game = Game(4)
-        _game_embedding(game, 0)
+        game_embedding(game, 0)
 
 def test_card_embeddings():
     for card in Deck().cards:
