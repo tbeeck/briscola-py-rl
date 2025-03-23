@@ -13,7 +13,8 @@ class Game:
             raise ValueError(f"Invalid first player index: {goes_first}")
 
         deck = Deck()
-        deck, [briscola] = deck.take(1)
+        deck.shuffle()
+        briscola = deck.take(1)[0]
 
         self.deck = deck
         self.players = [Player() for _ in range(players)]
@@ -89,7 +90,7 @@ class Game:
         return winning_player_index, winning_card
 
     def deal_cards(self, n):
-        self.deck, cards = self.deck.take(n * len(self.players))
+        cards = self.deck.take(n * len(self.players))
         split_cards = [cards[i :: len(self.players)] for i in range(len(self.players))]
         for i, player in enumerate(self.players):
             player.hand.extend(split_cards[i])

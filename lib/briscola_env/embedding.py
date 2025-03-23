@@ -12,10 +12,28 @@ from lib.briscola.game import Game, Card
 # our points (1)
 # opponent points (3)
 def game_embedding(game: Game, player: int):
-    hand = cards_embedding(game.players[player].hand, 3)
-    trick = cards_embedding(game.trick, 3)
-    briscola = card_embedding(game.briscola)
-    deck_cards = deck_embedding(game.deck)
+    full_embeddings = np.zeros(shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=int)
+    offset = 0
+    # hand
+    for i, v in enumerate(cards_embedding(game.players[player].hand, 3)):
+        full_embeddings[i + offset] = v
+    offset += 3
+    # trick
+    for i, v in enumerate(cards_embedding(game.trick, 3)):
+        full_embeddings[i + offset] = v
+    offset += 3
+    # briscola
+    full_embeddings[offset] = card_embedding(game.briscola)
+    offset += 1
+    # deck
+    for i, v in enumerate(deck_embedding(game.deck)):
+        full_embeddings[i + offset] = v
+    offset += 40
+    # player points
+    # TODO always put current player points first,
+    # then in order of play after current player
+    for i, v in enumerate(game.players):
+        full_embeddings[i + offset] = v.score()
 
 
 def deck_embedding(deck: Deck):
