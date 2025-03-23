@@ -37,6 +37,9 @@ class Card:
     def __str__(self):
         rank_names = {1: "ace", 8: "jack", 9: "knight", 10: "king"}
         return f"({rank_names.get(self.rank, self.rank)}, {self.suit})"
+    
+    def __eq__(self, val):
+        return self.suit == val.suit and self.rank == val.rank 
 
 
 class Deck:
