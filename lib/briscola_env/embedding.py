@@ -34,7 +34,7 @@ def game_embedding(game: Game, player: int):
     # then in order of play after current player
     for i, v in enumerate(game.players):
         full_embeddings[i + offset] = v.score()
-
+    return full_embeddings
 
 def deck_embedding(deck: Deck):
     result = np.zeros(shape=(40,), dtype=int)
