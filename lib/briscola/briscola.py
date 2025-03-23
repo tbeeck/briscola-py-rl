@@ -47,8 +47,11 @@ class Deck:
     Class representing a deck of cards.
     """
 
-    def __init__(self):
-        self.cards = self.new_deck()
+    def __init__(self, cards=None):
+        if cards is None:
+            self.cards = self.new_deck()
+        else:
+            self.cards = cards
 
     def new_deck(self) -> List[Card]:
         """

@@ -19,7 +19,12 @@ def game_embedding(game: Game, player: int):
 
 
 def deck_embedding(deck: Deck):
-    result = np.zeros(shape=(40, 1))
+    result = np.zeros(shape=(40,), dtype=int)
+    existing_cards = set(card_embedding(c) for c in deck.cards)
+    for i in range(40):
+        if i in existing_cards:
+            result[i] = 1
+    return result
 
 
 def cards_embedding(cards: List[Card], length: int):
@@ -32,15 +37,13 @@ def cards_embedding(cards: List[Card], length: int):
 
 
 def card_embedding(card: Card) -> int:
-    offset = Card.SUITS.index(card.suit) * 11
-    result = card.rank + offset
+    offset = Card.SUITS.index(card.suit) * 10
+    result = (card.rank - 1) + offset
     return result
 
 
 def card_reverse_embedding(i: int) -> Card:
-    suit_index = 0
-    while i > 11:
-        i -= 11
-        suit_index += 1
-    result = Card(Card.SUITS[suit_index], i)
-    return result
+    suit_index = i // 10
+    i -= suit_index * 10
+    rank = i + 1
+    return Card(Card.SUITS[suit_index], rank)
