@@ -1,0 +1,103 @@
+import random
+from typing import List
+
+
+class Card:
+    """
+    Class representing a card in the game of Briscola.
+    """
+
+    SUITS = ["cups", "coins", "swords", "batons"]
+    RANKS = list(range(1, 11))  # Ranks 1 to 10
+
+    def __init__(self, suit: str, rank: int):
+        if suit not in self.SUITS:
+            raise ValueError(f"Invalid suit: {suit}")
+        if rank not in self.RANKS:
+            raise ValueError(f"Invalid rank: {rank}")
+        self.suit = suit
+        self.rank = rank
+
+    def __repr__(self):
+        return f"Card({self.suit}, {self.rank})"
+
+    def score(self) -> int:
+        """
+        Returns the point value of a card.
+        """
+        return {1: 11, 3: 10, 10: 4, 9: 3, 8: 2}.get(self.rank, 0)
+
+    def strength(self) -> int:
+        """
+        Returns the strength of a card, used to determine a trick winner.
+        """
+        score_value = self.score()
+        return score_value + 10 if score_value > 0 else self.rank
+
+    def __str__(self):
+        rank_names = {1: "ace", 8: "jack", 9: "knight", 10: "king"}
+        return f"({rank_names.get(self.rank, self.rank)}, {self.suit})"
+
+
+class Deck:
+    """
+    Class representing a deck of cards.
+    """
+
+    def __init__(self):
+        self.cards = self.new_deck()
+
+    def new_deck(self) -> List[Card]:
+        """
+        Create a new deck of cards, not shuffled.
+        """
+        return [Card(suit, rank) for suit in Card.SUITS for rank in Card.RANKS]
+
+    def shuffle(self):
+        """
+        Shuffle the deck.
+        """
+        random.shuffle(self.cards)
+
+    def take(self, n: int) -> List[Card]:
+        """
+        Take a number of cards from the top of the deck.
+        """
+        taken = self.cards[:n]
+        self.cards = self.cards[n:]
+        return taken
+
+    def __repr__(self):
+        return f"Deck({self.cards})"
+
+
+class Player:
+    """
+    Class representing a player in the game of Briscola.
+    """
+
+    def __init__(self):
+        self.hand = []
+        self.pile = []
+
+    def score(self) -> int:
+        """
+        Calculate the player's score based on their pile.
+        """
+        return sum(card.score() for card in self.pile)
+
+    def remove_from_hand(self, card: Card):
+        """
+        Remove a specific card from a player's hand.
+        """
+        if card in self.hand:
+            self.hand.remove(card)
+
+    def take_trick(self, cards: List[Card]):
+        """
+        Add won trick cards to the player's pile.
+        """
+        self.pile.extend(cards)
+
+    def __repr__(self):
+        return f"Player(hand={self.hand}, pile={self.pile})"
