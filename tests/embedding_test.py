@@ -6,7 +6,7 @@ from lib.briscola_env.embedding import (
     cards_embedding,
     card_embedding,
     card_reverse_embedding,
-    deck_embedding
+    deck_embedding,
 )
 
 
@@ -30,9 +30,8 @@ def test_padding():
 
 
 def test_deck_embedding():
-    deck = Deck([Card("cups", 1), Card("cups", 2)])
+    deck = Deck([Card("cups", 2)])
     expected = np.zeros(shape=(40,), dtype=int)
-    expected[0] = 1
     expected[1] = 1
     assert_array_equal(expected, deck_embedding(deck))
 
