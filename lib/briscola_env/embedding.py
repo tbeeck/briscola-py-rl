@@ -25,7 +25,7 @@ def deck_embedding(deck: Deck):
 def cards_embedding(cards: List[Card], length: int):
     if len(cards) > length:
         raise Exception("cards exceeded expected length")
-    result = np.zeros(shape=(length, 1))
+    result = np.zeros(shape=(length,), dtype=int)
     for i in range(len(cards)):
         result[i] = card_embedding(cards[i])
     return result
@@ -34,7 +34,6 @@ def cards_embedding(cards: List[Card], length: int):
 def card_embedding(card: Card) -> int:
     offset = Card.SUITS.index(card.suit) * 11
     result = card.rank + offset
-    print(card, result)
     return result
 
 
@@ -44,5 +43,4 @@ def card_reverse_embedding(i: int) -> Card:
         i -= 11
         suit_index += 1
     result = Card(Card.SUITS[suit_index], i)
-    print("result", result)
     return result
