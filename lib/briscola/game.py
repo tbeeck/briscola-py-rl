@@ -1,29 +1,29 @@
 from typing import List, Tuple, Optional
 
-from lib.briscola.briscola import Deck, Card, Player
+from lib.briscola.briscola import BriscolaDeck, BriscolaCard, BriscolaPlayer
 
 HAND_SIZE = 3
 
 
-class Game:
+class BriscolaGame:
     def __init__(self, players=2, goes_first=0):
         if players not in [2, 4]:
             raise ValueError(f"Invalid number of players: {players}")
         if goes_first < 0 or goes_first >= players:
             raise ValueError(f"Invalid first player index: {goes_first}")
 
-        deck = Deck()
+        deck = BriscolaDeck()
         deck.shuffle()
         briscola = deck.take(1)[0]
 
         self.deck = deck
-        self.players = [Player() for _ in range(players)]
+        self.players = [BriscolaPlayer() for _ in range(players)]
         self.briscola = briscola
         self.trick = []
         self.action_on = goes_first
         self.deal_cards(HAND_SIZE)
 
-    def play(self, card: Card) -> None:
+    def play(self, card: BriscolaCard) -> None:
         if len(self.trick) == len(self.players):
             raise Exception("trick over")
 
@@ -37,7 +37,7 @@ class Game:
         self.trick.append(card)
         self.action_on = (self.action_on + 1) % len(self.players)
 
-    def playable(self, card: Optional[Card]) -> bool:
+    def playable(self, card: Optional[BriscolaCard]) -> bool:
         if self.should_score_trick():
             return False
         if self.needs_redeal():
@@ -57,7 +57,7 @@ class Game:
 
         return winning_player
 
-    def trick_winner(self) -> Tuple[int, Card]:
+    def trick_winner(self) -> Tuple[int, BriscolaCard]:
         trump = self.trump_suit()
         lead = self.lead_suit()
 
@@ -72,13 +72,13 @@ class Game:
             elif (
                 card.suit == trump
                 and winning_card.suit == trump
-                and Card.strength(card) > Card.strength(winning_card)
+                and BriscolaCard.strength(card) > BriscolaCard.strength(winning_card)
             ):
                 winning_card = card
             elif (
                 card.suit == lead
                 and winning_card.suit == lead
-                and Card.strength(card) > Card.strength(winning_card)
+                and BriscolaCard.strength(card) > BriscolaCard.strength(winning_card)
             ):
                 winning_card = card
         if not winning_card:
@@ -114,5 +114,5 @@ class Game:
     def game_over(self) -> bool:
         return len(self.deck.cards) == 0 and all(len(p.hand) == 0 for p in self.players)
 
-    def leaders(self) -> List[Player]:
+    def leaders(self) -> List[BriscolaPlayer]:
         return sorted(self.players, key=lambda p: p.score(), reverse=True)

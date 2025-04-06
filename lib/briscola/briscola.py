@@ -2,7 +2,7 @@ import random
 from typing import List
 
 
-class Card:
+class BriscolaCard:
     """
     Class representing a card in the game of Briscola.
     """
@@ -42,7 +42,7 @@ class Card:
         return self.suit == val.suit and self.rank == val.rank 
 
 
-class Deck:
+class BriscolaDeck:
     """
     Class representing a deck of cards.
     """
@@ -53,11 +53,11 @@ class Deck:
         else:
             self.cards = cards
 
-    def new_deck(self) -> List[Card]:
+    def new_deck(self) -> List[BriscolaCard]:
         """
         Create a new deck of cards, not shuffled.
         """
-        return [Card(suit, rank) for suit in Card.SUITS for rank in Card.RANKS]
+        return [BriscolaCard(suit, rank) for suit in BriscolaCard.SUITS for rank in BriscolaCard.RANKS]
 
     def shuffle(self):
         """
@@ -65,7 +65,7 @@ class Deck:
         """
         random.shuffle(self.cards)
 
-    def take(self, n: int) -> List[Card]:
+    def take(self, n: int) -> List[BriscolaCard]:
         """
         Take a number of cards from the top of the deck.
         """
@@ -77,7 +77,7 @@ class Deck:
         return f"Deck({self.cards})"
 
 
-class Player:
+class BriscolaPlayer:
     """
     Class representing a player in the game of Briscola.
     """
@@ -92,14 +92,14 @@ class Player:
         """
         return sum(card.score() for card in self.pile)
 
-    def remove_from_hand(self, card: Card):
+    def remove_from_hand(self, card: BriscolaCard):
         """
         Remove a specific card from a player's hand.
         """
         if card in self.hand:
             self.hand.remove(card)
 
-    def take_trick(self, cards: List[Card]):
+    def take_trick(self, cards: List[BriscolaCard]):
         """
         Add won trick cards to the player's pile.
         """

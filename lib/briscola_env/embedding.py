@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List
-from lib.briscola.briscola import Deck
-from lib.briscola.game import Game, Card
+from lib.briscola.briscola import BriscolaDeck
+from lib.briscola.game import Game, BriscolaCard
 
 
 # Given a game and the current player, generate an embedding for the model
@@ -36,7 +36,7 @@ def game_embedding(game: Game, player: int):
         full_embeddings[i + offset] = v.score()
     return full_embeddings
 
-def deck_embedding(deck: Deck):
+def deck_embedding(deck: BriscolaDeck):
     result = np.zeros(shape=(40,), dtype=int)
     existing_cards = set(card_embedding(c) for c in deck.cards)
     for i in range(40):
@@ -45,7 +45,7 @@ def deck_embedding(deck: Deck):
     return result
 
 
-def cards_embedding(cards: List[Card], length: int):
+def cards_embedding(cards: List[BriscolaCard], length: int):
     if len(cards) > length:
         raise Exception("cards exceeded expected length")
     result = np.zeros(shape=(length,), dtype=int)
@@ -54,14 +54,14 @@ def cards_embedding(cards: List[Card], length: int):
     return result
 
 
-def card_embedding(card: Card) -> int:
-    offset = Card.SUITS.index(card.suit) * 10
+def card_embedding(card: BriscolaCard) -> int:
+    offset = BriscolaCard.SUITS.index(card.suit) * 10
     result = (card.rank - 1) + offset
     return result
 
 
-def card_reverse_embedding(i: int) -> Card:
+def card_reverse_embedding(i: int) -> BriscolaCard:
     suit_index = i // 10
     i -= suit_index * 10
     rank = i + 1
-    return Card(Card.SUITS[suit_index], rank)
+    return BriscolaCard(BriscolaCard.SUITS[suit_index], rank)

@@ -6,13 +6,13 @@ from gymnasium import spaces
 class BriscolaEnv(gym.Env):
     """Custom Environment that follows gym interface."""
 
-    metadata = {"render_modes": ["human"], "render_fps": 30}
+    metadata = {"render_modes": ["ansi"]}
 
     def __init__(self):
         super().__init__()
         # 3 cards to play (need to mask in the case that the player has less than 3 cards)
         self.action_space = spaces.Discrete(3)
-		# Tips on observation space embedding:
+        # Tips on observation space embedding:
         # https://rlcard.org/games.html
         # Our hand (3)
         # The trick so far (3)
