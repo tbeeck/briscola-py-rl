@@ -13,7 +13,6 @@ class BriscolaGame:
             raise ValueError(f"Invalid first player index: {goes_first}")
 
         deck = BriscolaDeck()
-        deck.shuffle()
         briscola = deck.take(1)[0]
 
         self.deck = deck

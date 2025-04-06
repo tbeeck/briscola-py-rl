@@ -2,6 +2,9 @@ import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
 
+from lib.briscola.game import BriscolaGame
+from lib.briscola_env.embedding import game_embedding
+
 
 class BriscolaEnv(gym.Env):
     """Custom Environment that follows gym interface."""
@@ -10,8 +13,9 @@ class BriscolaEnv(gym.Env):
 
     def __init__(self):
         super().__init__()
-        # 3 cards to play (need to mask in the case that the player has less than 3 cards)
-        self.action_space = spaces.Discrete(3)
+        # 40 possible cards to play
+        # need to mask the space to the available cards in hand
+        self.action_space = spaces.Discrete(40)
         # Tips on observation space embedding:
         # https://rlcard.org/games.html
         # Our hand (3)
@@ -28,10 +32,16 @@ class BriscolaEnv(gym.Env):
         return observation, reward, terminated, truncated, info
 
     def reset(self, seed=None, options=None):
+        self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
+        observation, info = self.observe()
         return observation, info
 
     def render(self):
-        pass
+        print(self.game)
 
     def close(self):
         pass
+
+    def observe(self):
+        observation = game_embedding(self.game)
+        return observation, {}

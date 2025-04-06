@@ -1,4 +1,4 @@
-import random
+import numpy as np
 from typing import List
 
 
@@ -37,9 +37,9 @@ class BriscolaCard:
     def __str__(self):
         rank_names = {1: "ace", 8: "jack", 9: "knight", 10: "king"}
         return f"({rank_names.get(self.rank, self.rank)}, {self.suit})"
-    
+
     def __eq__(self, val):
-        return self.suit == val.suit and self.rank == val.rank 
+        return self.suit == val.suit and self.rank == val.rank
 
 
 class BriscolaDeck:
@@ -57,13 +57,20 @@ class BriscolaDeck:
         """
         Create a new deck of cards, not shuffled.
         """
-        return [BriscolaCard(suit, rank) for suit in BriscolaCard.SUITS for rank in BriscolaCard.RANKS]
+        return [
+            BriscolaCard(suit, rank)
+            for suit in BriscolaCard.SUITS
+            for rank in BriscolaCard.RANKS
+        ]
 
-    def shuffle(self):
+    def shuffle(self, seed=None):
         """
         Shuffle the deck.
         """
-        random.shuffle(self.cards)
+        if seed:
+            np.random.default_rng(seed).shuffle(self.cards)
+        else:
+            np.random.shuffle(self.cards)
 
     def take(self, n: int) -> List[BriscolaCard]:
         """
