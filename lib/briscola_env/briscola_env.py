@@ -22,6 +22,30 @@ class BriscolaEnv(AECEnv):
     def __init__(self):
         super().__init__()
         self.possible_agents = [f"player_{i}" for i in range(4)]
+        # Tips on observation space embedding:
+        # https://rlcard.org/games.html
+        # Our hand (3)
+        # The trick so far (3)
+        # The Briscola (1)
+        # Cards already played (40)
+        # our points (1)
+        # opponent points (3)
+        self.observation_spaces = {
+            name: spaces.Dict(
+                {
+                    "observation": spaces.Box(
+                        low=0, high=255, shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=np.uint8
+                    ),
+                    "action_mask": spaces.Box(
+                        low=0, high=1, shape=(40,), dtype=np.int8
+                    ),
+                }
+            )
+            for name in self.possible_agents
+        }
+        self.action_spaces = {
+            name: spaces.Discrete(40) for name in self.possible_agents
+        }
 
     def reset(self, seed=None, options=None):
         self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
@@ -31,7 +55,7 @@ class BriscolaEnv(AECEnv):
         self.truncations = {agent: False for agent in self.agents}
         self.infos = {agent: {} for agent in self.agents}
         self.rewards = {agent: 0 for agent in self.agents}
-        self._cumulative_rewards = {agent: 0 for agent in self.agents}
+        self._cumulative_rewards = {name: 0 for name in self.agents}
 
         self.agent_selection = self.agents[0]
 
@@ -48,14 +72,14 @@ class BriscolaEnv(AECEnv):
             self.game.redeal()
         if self.game.game_over():
             placements = self.game.leaders()
+            print("placements", placements)
             reward = 3
-            for score, id in placements:
+            for _score, id in placements:
                 a = f"player_{id}"
                 self.rewards[a] = reward
                 reward -= 1
                 self.terminations[a] = True
-            self.agent_seletion = None
-            return
+        self._accumulate_rewards()
 
         self.observations = {agent: self.observe(agent) for agent in self.agents}
         self.agent_selection = next_agent
@@ -73,30 +97,13 @@ class BriscolaEnv(AECEnv):
             "action_mask": np.array(hand_mask, dtype=np.int8),
         }
 
-    @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
-        # Tips on observation space embedding:
-        # https://rlcard.org/games.html
-        # Our hand (3)
-        # The trick so far (3)
-        # The Briscola (1)
-        # Cards already played (40)
-        # our points (1)
-        # opponent points (3)
-        return spaces.Dict(
-            {
-                "observation": spaces.Box(
-                    low=0, high=255, shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=np.uint8
-                ),
-                "action_mask": spaces.Box(low=0, high=1, shape=(40,), dtype=np.int8),
-            }
-        )
+        return self.observation_spaces[agent]
 
-    @functools.lru_cache(maxsize=None)
     def action_space(self, agent):
         # 40 possible cards to play
         # need to mask the space to the available cards in hand
-        return spaces.Discrete(40)
+        return self.action_spaces[agent]
 
     def render(self):
         print(self.game)
