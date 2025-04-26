@@ -6,13 +6,14 @@ HAND_SIZE = 3
 
 
 class BriscolaGame:
-    def __init__(self, players=2, goes_first=0):
+    def __init__(self, players=4, goes_first=0, seed=None):
         if players not in [2, 4]:
             raise ValueError(f"Invalid number of players: {players}")
         if goes_first < 0 or goes_first >= players:
             raise ValueError(f"Invalid first player index: {goes_first}")
 
         deck = BriscolaDeck()
+        deck.shuffle(seed)
         briscola = deck.take(1)[0]
 
         self.deck = deck

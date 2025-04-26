@@ -1,12 +1,12 @@
-import gymnasium as gym
 import numpy as np
 from gymnasium import spaces
 
 from lib.briscola.game import BriscolaGame
 from lib.briscola_env.embedding import card_reverse_embedding, game_embedding
+from pettingzoo import AECEnv
 
 
-class BriscolaEnv(gym.Env):
+class BriscolaEnv(AECEnv):
     """Custom Environment that follows gym interface."""
 
     metadata = {"render_modes": ["ansi"]}
@@ -27,6 +27,7 @@ class BriscolaEnv(gym.Env):
         self.observation_space = spaces.Box(
             low=0, high=255, shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=np.uint8
         )
+        self.agents = [i for i in range(4)]
 
     def step(self, action):
         played_card = card_reverse_embedding(action)
@@ -55,5 +56,5 @@ class BriscolaEnv(gym.Env):
         print(self.game)
 
     def observe(self):
-        observation = game_embedding(self.game)
+        observation = {"observation": game_embedding(self.game, 0)}
         return observation, {}

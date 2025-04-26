@@ -7,6 +7,7 @@ requires-python = ">=3.11"
 dependencies = [
     "onnx>=1.17.0",
     "opencv-python>=4.11.0.86",
+    "pettingzoo>=1.25.0",
     "pygame>=2.6.1",
     "rlcard>=1.2.0",
     "stable-baselines3>=2.5.0",

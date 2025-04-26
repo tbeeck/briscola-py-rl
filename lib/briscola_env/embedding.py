@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List
 from lib.briscola.briscola import BriscolaDeck
-from lib.briscola.game import Game, BriscolaCard
+from lib.briscola.game import BriscolaGame, BriscolaCard
 
 
 # Given a game and the current player, generate an embedding for the model
@@ -11,7 +11,7 @@ from lib.briscola.game import Game, BriscolaCard
 # Cards still in the deck (40)
 # our points (1)
 # opponent points (3)
-def game_embedding(game: Game, player: int):
+def game_embedding(game: BriscolaGame, player: int):
     full_embeddings = np.zeros(shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=int)
     offset = 0
     # hand
