@@ -59,30 +59,32 @@ class BriscolaEnv(AECEnv):
 
         self.agent_selection = self.agents[0]
 
-    def step(self, action):
-        agent = self.agent_selection
-        next_agent = self.agents[(self.agents.index(agent) + 1) % len(self.agents)]
-        played_card = card_reverse_embedding(action)
+    def set_game_result(self):
+        placements = self.game.leaders()
+        reward = 3
+        for _score, id in placements:
+            a = f"player_{id}"
+            self.rewards[a] = reward
+            reward -= 1
+            self.terminations[a] = True
+        print(self.terminations, self.rewards)
 
+    def step(self, action):
+        if self.terminations[self.agent_selection]:
+            return self._was_dead_step(action)
+        played_card = card_reverse_embedding(action)
         self.game.play(played_card)
         if self.game.should_score_trick():
-            next_id = self.game.score_trick()
-            next_agent = f"player_{next_id}"
+            self.game.score_trick()
         if self.game.needs_redeal():
             self.game.redeal()
         if self.game.game_over():
-            placements = self.game.leaders()
-            print("placements", placements)
-            reward = 3
-            for _score, id in placements:
-                a = f"player_{id}"
-                self.rewards[a] = reward
-                reward -= 1
-                self.terminations[a] = True
+            self.set_game_result()
         self._accumulate_rewards()
 
         self.observations = {agent: self.observe(agent) for agent in self.agents}
-        self.agent_selection = next_agent
+        action_on = self.game.action_on
+        self.agent_selection = f"player_{action_on}"
 
     def observe(self, agent):
         agent_id = player_id(agent)

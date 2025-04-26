@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "chess>=1.11.2",
     "onnx>=1.17.0",
     "opencv-python>=4.11.0.86",
     "pettingzoo>=1.25.0",
