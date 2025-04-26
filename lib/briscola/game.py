@@ -128,4 +128,5 @@ class BriscolaGame:
         for i in range(len(self.players)):
             result.append(f"Player {i}: {self.players[i]}")
         result.append(f"Action on: {self.action_on}")
+        result.append(f"Trick: {self.trick}")
         return "\n".join(result)

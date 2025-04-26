@@ -12,7 +12,7 @@ from lib.briscola.game import BriscolaGame, BriscolaCard
 # our points (1)
 # opponent points (3)
 def game_embedding(game: BriscolaGame, player: int):
-    full_embeddings = np.zeros(shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=int)
+    full_embeddings = np.zeros(shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=np.uint8)
     offset = 0
     # hand
     for i, v in enumerate(cards_embedding(game.players[player].hand, 3)):
@@ -34,7 +34,7 @@ def game_embedding(game: BriscolaGame, player: int):
     # then in order of play after current player
     for i, v in enumerate(game.players):
         full_embeddings[i + offset] = v.score()
-    return full_embeddings
+    return np.array(full_embeddings, dtype=np.uint8)
 
 def deck_embedding(deck: BriscolaDeck):
     result = np.zeros(shape=(40,), dtype=int)
