@@ -23,7 +23,6 @@ def test_card_embeddings():
     for card in BriscolaDeck().cards:
         embedding = card_embedding(card)
         rev = card_reverse_embedding(embedding)
-        print(card, embedding)
         assert card == rev
 
 

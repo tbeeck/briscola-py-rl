@@ -24,7 +24,6 @@ class BriscolaEnv(AECEnv):
         self.possible_agents = [f"player_{i}" for i in range(4)]
 
     def reset(self, seed=None, options=None):
-        print("resetting")
         self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
         self.agents = self.possible_agents[:]
         self.observations = {agent: self.observe(agent) for agent in self.agents}
@@ -68,11 +67,8 @@ class BriscolaEnv(AECEnv):
             self.rewards[a] = reward
             reward -= 1
             self.terminations[a] = True
-        print(self.terminations, self.rewards)
 
     def step(self, action):
-        print("agent: ", self.agent_selection, self.observations[self.agent_selection])
-        print(self.game)
         if self.terminations[self.agent_selection]:
             return self._was_dead_step(action)
         played_card = card_reverse_embedding(action)
