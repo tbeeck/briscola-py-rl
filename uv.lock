@@ -35,6 +35,7 @@ dependencies = [
     { name = "onnx" },
     { name = "opencv-python" },
     { name = "pygame" },
+    { name = "rlcard" },
     { name = "stable-baselines3" },
 ]
 
@@ -49,6 +50,7 @@ requires-dist = [
     { name = "onnx", specifier = ">=1.17.0" },
     { name = "opencv-python", specifier = ">=4.11.0.86" },
     { name = "pygame", specifier = ">=2.6.1" },
+    { name = "rlcard", specifier = ">=1.2.0" },
     { name = "stable-baselines3", specifier = ">=2.5.0" },
 ]
 
@@ -1202,6 +1204,16 @@ wheels = [
 ]
 
 [[package]]
+name = "rlcard"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "termcolor" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d4/d2/6bb5b8d6743c7846a03187cf7d5d7cb73cee94aa129a57f449310bdf33be/rlcard-1.2.0.tar.gz", hash = "sha256:d8e74211cecb44e9b1ee37c18a9014fa5c5549af5f4fc25cd643eb591e15520b", size = 269029 }
+
+[[package]]
 name = "setuptools"
 version = "76.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1260,6 +1272,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/ca/99/5a5b6f19ff9f083671ddf7b9632028436167cd3d33e11015754e41b249a4/sympy-1.13.1.tar.gz", hash = "sha256:9cebf7e04ff162015ce31c9c6c9144daa34a93bd082f54fd8f12deca4f47515f", size = 7533040 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/fe/81695a1aa331a842b582453b605175f419fe8540355886031328089d840a/sympy-1.13.1-py3-none-any.whl", hash = "sha256:db36cdc64bf61b9b24578b6f7bab1ecdd2452cf008f34faa33776680c26d66f8", size = 6189177 },
+]
+
+[[package]]
+name = "termcolor"
+version = "3.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f8/b6/8e2aaa8aeb570b5cc955cd913b083d96c5447bbe27eaf330dfd7cc8e3329/termcolor-3.0.1.tar.gz", hash = "sha256:a6abd5c6e1284cea2934443ba806e70e5ec8fd2449021be55c280f8a3731b611", size = 12935 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a6/7e/a574ccd49ad07e8b117407bac361f1e096b01f1b620365daf60ff702c936/termcolor-3.0.1-py3-none-any.whl", hash = "sha256:da1ed4ec8a5dc5b2e17476d859febdb3cccb612be1c36e64511a6f2485c10c69", size = 7157 },
 ]
 
 [[package]]
