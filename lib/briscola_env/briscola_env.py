@@ -3,7 +3,10 @@ import numpy as np
 from gymnasium import spaces
 
 from lib.briscola.game import BriscolaGame
-from lib.briscola_env.embedding import card_reverse_embedding, game_embedding
+from lib.briscola_env.embedding import (
+    card_reverse_embedding,
+    game_embedding,
+)
 from pettingzoo import AECEnv
 
 
@@ -30,15 +33,9 @@ class BriscolaEnv(AECEnv):
         if self.game.needs_redeal():
             self.game.redeal()
 
-        terminated = False
-        reward = 0
-        if self.game.game_over():
-            terminated = True
-            if self.game.leaders()[0] == 0:
-                reward = 1
-        observation, info = self.observe(agent)
-
-        return observation, reward, terminated, {}, info
+        self.agent_selection = self.agents[
+            self.agents.index(agent) + 1 % len(self.agents)
+        ]
 
     def reset(self, seed=None, options=None):
         self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
@@ -51,12 +48,16 @@ class BriscolaEnv(AECEnv):
         self.agent_selection = self.agents[0]
         self._cumulative_rewards = {agent: 0 for agent in self.agents}
 
-    def render(self):
-        print(self.game)
-
     def observe(self, agent):
-        observation = {"observation": game_embedding(self.game, player_id(agent))}
-        return observation, {}
+        agent_id = player_id(agent)
+        player_hand = self.game.players[agent_id].hand
+        hand_mask = [
+            1 if card_reverse_embedding(i) in player_hand else 0 for i in range(40)
+        ]
+        return {
+            "observation": game_embedding(self.game, agent_id),
+            "action_mask": np.array(hand_mask, dtype=np.int8),
+        }
 
     @functools.lru_cache(maxsize=None)
     def observation_space(self, agent):
@@ -77,3 +78,6 @@ class BriscolaEnv(AECEnv):
         # 40 possible cards to play
         # need to mask the space to the available cards in hand
         return spaces.Discrete(40)
+
+    def render(self):
+        print(self.game)
