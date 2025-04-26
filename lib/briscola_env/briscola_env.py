@@ -3,7 +3,7 @@ import numpy as np
 from gymnasium import spaces
 
 from lib.briscola.game import BriscolaGame
-from lib.briscola_env.embedding import game_embedding
+from lib.briscola_env.embedding import card_reverse_embedding, game_embedding
 
 
 class BriscolaEnv(gym.Env):
@@ -29,7 +29,22 @@ class BriscolaEnv(gym.Env):
         )
 
     def step(self, action):
-        return observation, reward, terminated, truncated, info
+        played_card = card_reverse_embedding(action)
+        self.game.play(played_card)
+        if self.game.should_score_trick():
+            self.game.score_trick()
+        if self.game.needs_redeal():
+            self.game.redeal()
+
+        terminated = False
+        reward = 0
+        if self.game.game_over():
+            terminated = True
+            if self.game.leaders()[0] == 0:
+                reward = 1
+        observation, info = self.observe()
+
+        return observation, reward, terminated, {}, info
 
     def reset(self, seed=None, options=None):
         self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
@@ -38,9 +53,6 @@ class BriscolaEnv(gym.Env):
 
     def render(self):
         print(self.game)
-
-    def close(self):
-        pass
 
     def observe(self):
         observation = game_embedding(self.game)

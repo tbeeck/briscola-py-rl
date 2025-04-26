@@ -88,6 +88,12 @@ class BriscolaGame:
         ) % len(self.players)
         return winning_player_index, winning_card
 
+    def redeal(self):
+        if all(len(p.hand) < 3 for p in self.players):
+            self.deal_cards(1)
+        else:
+            raise Exception("players have cards")
+
     def deal_cards(self, n):
         cards = self.deck.take(n * len(self.players))
         split_cards = [cards[i :: len(self.players)] for i in range(len(self.players))]
@@ -115,3 +121,10 @@ class BriscolaGame:
 
     def leaders(self) -> List[BriscolaPlayer]:
         return sorted(self.players, key=lambda p: p.score(), reverse=True)
+
+    def __repr__(self):
+        result = []
+        for i in range(len(self.players)):
+            result.append(f"Player {i}: {self.players[i]}")
+        result.append(f"Action on: {self.action_on}")
+        return "\n".join(result)
