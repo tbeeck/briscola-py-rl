@@ -97,6 +97,8 @@ class BriscolaGame:
 
     def deal_cards(self, n):
         cards = self.deck.take(n * len(self.players))
+        if len(cards) < n * len(self.players):
+            cards.append(self.briscola)
         split_cards = [cards[i :: len(self.players)] for i in range(len(self.players))]
         for i, player in enumerate(self.players):
             player.hand.extend(split_cards[i])
@@ -128,5 +130,5 @@ class BriscolaGame:
         for i in range(len(self.players)):
             result.append(f"Player {i}: {self.players[i]}")
         result.append(f"Action on: {self.action_on}")
-        result.append(f"Trick: {self.trick}")
+        result.append(f"Deck: {len(self.deck.cards)}, Trick: {self.trick}")
         return "\n".join(result)
