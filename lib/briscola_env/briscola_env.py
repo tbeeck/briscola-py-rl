@@ -23,6 +23,17 @@ class BriscolaEnv(AECEnv):
         super().__init__()
         self.possible_agents = [f"player_{i}" for i in range(4)]
 
+    def reset(self, seed=None, options=None):
+        self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
+        self.agents = self.possible_agents[:]
+        self.rewards = {agent: 0 for agent in self.agents}
+        self.terminations = {agent: False for agent in self.agents}
+        self.truncations = {agent: False for agent in self.agents}
+        self.infos = {agent: {} for agent in self.agents}
+        self.observations = {agent: self.observe(agent) for agent in self.agents}
+        self.agent_selection = self.agents[0]
+        self._cumulative_rewards = {agent: 0 for agent in self.agents}
+
     def step(self, action):
         agent = self.agent_selection
         played_card = card_reverse_embedding(action)
@@ -36,17 +47,6 @@ class BriscolaEnv(AECEnv):
         self.agent_selection = self.agents[
             self.agents.index(agent) + 1 % len(self.agents)
         ]
-
-    def reset(self, seed=None, options=None):
-        self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
-        self.agents = self.possible_agents[:]
-        self.rewards = {agent: 0 for agent in self.agents}
-        self.terminations = {agent: False for agent in self.agents}
-        self.truncations = {agent: False for agent in self.agents}
-        self.infos = {agent: {} for agent in self.agents}
-        self.observations = {agent: self.observe(agent) for agent in self.agents}
-        self.agent_selection = self.agents[0]
-        self._cumulative_rewards = {agent: 0 for agent in self.agents}
 
     def observe(self, agent):
         agent_id = player_id(agent)
