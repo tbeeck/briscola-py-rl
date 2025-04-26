@@ -123,7 +123,8 @@ class BriscolaGame:
         return len(self.deck.cards) == 0 and all(len(p.hand) == 0 for p in self.players)
 
     def leaders(self) -> List[BriscolaPlayer]:
-        return sorted(self.players, key=lambda p: p.score(), reverse=True)
+        scores = [(p.score(), i) for i, p in enumerate(self.players)]
+        return sorted(scores, reverse=True)
 
     def __repr__(self):
         result = []

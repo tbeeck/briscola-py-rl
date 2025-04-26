@@ -36,31 +36,28 @@ class BriscolaEnv(AECEnv):
         self.agent_selection = self.agents[0]
 
     def step(self, action):
-        self.render()
         agent = self.agent_selection
-        next_agent = self.agents[
-            (self.agents.index(agent) + 1) % len(self.agents)
-        ]
+        next_agent = self.agents[(self.agents.index(agent) + 1) % len(self.agents)]
         played_card = card_reverse_embedding(action)
-        print("player", agent, "played", played_card.__repr__())
 
         self.game.play(played_card)
         if self.game.should_score_trick():
             next_id = self.game.score_trick()
             next_agent = f"player_{next_id}"
-            print('player', next_agent, 'won the trick')
         if self.game.needs_redeal():
             self.game.redeal()
         if self.game.game_over():
             placements = self.game.leaders()
-            print("!!!!!!!!!GAME OVER!!!!!!!", placements)
-            raise Exception("game over")
+            reward = 3
+            for score, id in placements:
+                a = f"player_{id}"
+                self.rewards[a] = reward
+                reward -= 1
+                self.terminations[a] = True
+            self.agent_seletion = None
+            return
 
-
-        print("updating observations", agent)
         self.observations = {agent: self.observe(agent) for agent in self.agents}
-        
-        print(agent, "->", next_agent)
         self.agent_selection = next_agent
 
     def observe(self, agent):
@@ -91,7 +88,7 @@ class BriscolaEnv(AECEnv):
                 "observation": spaces.Box(
                     low=0, high=255, shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=np.uint8
                 ),
-                "action_mask": spaces.Box(low=0, high=1, shape=(40,), dtype=np.int8)
+                "action_mask": spaces.Box(low=0, high=1, shape=(40,), dtype=np.int8),
             }
         )
 
