@@ -67,7 +67,7 @@ class BriscolaDeck:
         """
         Shuffle the deck.
         """
-        if seed:
+        if seed is not None:
             np.random.default_rng(seed).shuffle(self.cards)
         else:
             np.random.shuffle(self.cards)

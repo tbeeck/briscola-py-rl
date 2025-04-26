@@ -22,6 +22,19 @@ class BriscolaEnv(AECEnv):
     def __init__(self):
         super().__init__()
         self.possible_agents = [f"player_{i}" for i in range(4)]
+
+    def reset(self, seed=None, options=None):
+        print("resetting")
+        self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
+        self.agents = self.possible_agents[:]
+        self.observations = {agent: self.observe(agent) for agent in self.agents}
+        self.terminations = {agent: False for agent in self.agents}
+        self.truncations = {agent: False for agent in self.agents}
+        self.infos = {agent: {} for agent in self.agents}
+        self.rewards = {agent: 0 for agent in self.agents}
+        self._cumulative_rewards = {name: 0 for name in self.agents}
+
+        self.agent_selection = self.agents[0]
         # Tips on observation space embedding:
         # https://rlcard.org/games.html
         # Our hand (3)
@@ -41,35 +54,25 @@ class BriscolaEnv(AECEnv):
                     ),
                 }
             )
-            for name in self.possible_agents
+            for name in self.agents
         }
         self.action_spaces = {
-            name: spaces.Discrete(40) for name in self.possible_agents
+            name: spaces.Discrete(40) for name in self.agents
         }
-
-    def reset(self, seed=None, options=None):
-        self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
-        self.agents = self.possible_agents[:]
-        self.observations = {agent: self.observe(agent) for agent in self.agents}
-        self.terminations = {agent: False for agent in self.agents}
-        self.truncations = {agent: False for agent in self.agents}
-        self.infos = {agent: {} for agent in self.agents}
-        self.rewards = {agent: 0 for agent in self.agents}
-        self._cumulative_rewards = {name: 0 for name in self.agents}
-
-        self.agent_selection = self.agents[0]
 
     def set_game_result(self):
         placements = self.game.leaders()
         reward = 3
         for _score, id in placements:
-            a = f"player_{id}"
+            a = self.agents[id]
             self.rewards[a] = reward
             reward -= 1
             self.terminations[a] = True
         print(self.terminations, self.rewards)
 
     def step(self, action):
+        print("agent: ", self.agent_selection, self.observations[self.agent_selection])
+        print(self.game)
         if self.terminations[self.agent_selection]:
             return self._was_dead_step(action)
         played_card = card_reverse_embedding(action)
@@ -83,8 +86,7 @@ class BriscolaEnv(AECEnv):
         self._accumulate_rewards()
 
         self.observations = {agent: self.observe(agent) for agent in self.agents}
-        action_on = self.game.action_on
-        self.agent_selection = f"player_{action_on}"
+        self.agent_selection = self.agents[self.game.action_on]
 
     def observe(self, agent):
         agent_id = player_id(agent)
@@ -106,6 +108,3 @@ class BriscolaEnv(AECEnv):
         # 40 possible cards to play
         # need to mask the space to the available cards in hand
         return self.action_spaces[agent]
-
-    def render(self):
-        print(self.game)

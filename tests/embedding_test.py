@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from lib.briscola.briscola import BriscolaCard, BriscolaDeck
-from lib.briscola.game import Game
+from lib.briscola.game import BriscolaGame
 from lib.briscola_env.embedding import (
     game_embedding,
     cards_embedding,
@@ -15,7 +15,7 @@ from lib.briscola_env.embedding import (
 def test_game_embedding():
     # Make games and embed them all hope for no errors
     for _ in range(10_000):
-        game = Game(4)
+        game = BriscolaGame(4)
         game_embedding(game, 0)
 
 
