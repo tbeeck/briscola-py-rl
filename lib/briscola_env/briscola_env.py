@@ -17,23 +17,12 @@ def player_id(player: str) -> int:
 class BriscolaEnv(AECEnv):
     """Custom Environment that follows gym interface."""
 
-    metadata = {"render_modes": ["ansi"]}
+    metadata = {"name": "briscola", "render_modes": ["ansi"], "is_parallelizable": True}
 
     def __init__(self):
         super().__init__()
         self.possible_agents = [f"player_{i}" for i in range(4)]
-
-    def reset(self, seed=None, options=None):
-        self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
-        self.agents = self.possible_agents[:]
-        self.observations = {agent: self.observe(agent) for agent in self.agents}
-        self.terminations = {agent: False for agent in self.agents}
-        self.truncations = {agent: False for agent in self.agents}
-        self.infos = {agent: {} for agent in self.agents}
-        self.rewards = {agent: 0 for agent in self.agents}
-        self._cumulative_rewards = {name: 0 for name in self.agents}
-
-        self.agent_selection = self.agents[0]
+        self.render_mode = "ansi"
         # Tips on observation space embedding:
         # https://rlcard.org/games.html
         # Our hand (3)
@@ -53,11 +42,23 @@ class BriscolaEnv(AECEnv):
                     ),
                 }
             )
-            for name in self.agents
+            for name in self.possible_agents
         }
         self.action_spaces = {
-            name: spaces.Discrete(40) for name in self.agents
+            name: spaces.Discrete(40) for name in self.possible_agents
         }
+
+    def reset(self, seed=None, options=None):
+        self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
+        self.agents = self.possible_agents[:]
+        self.observations = {agent: self.observe(agent) for agent in self.agents}
+        self.terminations = {agent: False for agent in self.agents}
+        self.truncations = {agent: False for agent in self.agents}
+        self.infos = {agent: {} for agent in self.agents}
+        self.rewards = {agent: 0 for agent in self.agents}
+        self._cumulative_rewards = {name: 0 for name in self.agents}
+
+        self.agent_selection = self.agents[0]
 
     def set_game_result(self):
         placements = self.game.leaders()
