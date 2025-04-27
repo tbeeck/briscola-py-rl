@@ -73,7 +73,7 @@ class BriscolaEnv(AECEnv):
     def step(self, action):
         if self.terminations[self.agent_selection]:
             return self._was_dead_step(action)
-        
+        self._cumulative_rewards[self.agent_selection] = 0 
         played_card = card_reverse_embedding(action)
         self.game.play(played_card)
         if self.game.should_score_trick():
