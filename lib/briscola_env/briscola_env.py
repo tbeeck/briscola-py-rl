@@ -62,12 +62,17 @@ class BriscolaEnv(AECEnv):
 
     def set_game_result(self):
         placements = self.game.leaders()
-        reward = 3
-        for _score, id in placements:
-            a = self.agents[id]
-            self.rewards[a] = reward
-            reward -= 1
+        placement_rewards = [100, 80, 10, 0]
+        for i in range(len(self.agents)):
+            _score, p = placements[i]
+            a = self.agents[p]
+            self.rewards[a] += placement_rewards[i]
             self.terminations[a] = True
+
+    def update_rewards_with_trick_score(self, old_scores, new_scores):
+        print(self.agents, old_scores, new_scores)
+        for agent, old, new in zip(self.agents, old_scores, new_scores):
+            self.rewards[agent] += new - old
 
     def step(self, action):
         if self.terminations[self.agent_selection]:
@@ -75,11 +80,15 @@ class BriscolaEnv(AECEnv):
         played_card = card_reverse_embedding(action)
         self.game.play(played_card)
         if self.game.should_score_trick():
+            old_scores = list(p.score() for p in self.game.players)
             self.game.score_trick()
+            new_scores = list(p.score() for p in self.game.players)
+            # self.update_rewards_with_trick_score(old_scores, new_scores)
         if self.game.needs_redeal():
             self.game.redeal()
         if self.game.game_over():
             self.set_game_result()
+
         self._accumulate_rewards()
 
         self.observations = {agent: self.observe(agent) for agent in self.agents}
