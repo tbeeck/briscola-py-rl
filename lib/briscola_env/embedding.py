@@ -8,7 +8,7 @@ from lib.briscola.game import BriscolaGame, BriscolaCard
 # The Briscola (1)
 # Cards still in the deck (40)
 # our points (1)
-EMBEDDING_SHAPE = (3 + 3 + 1 + 40 + 1,)
+EMBEDDING_SHAPE = (3 + 3 + 1 + 1 + 40 + 1,)
 
 
 def game_embedding(game: BriscolaGame, player: int):
@@ -16,7 +16,7 @@ def game_embedding(game: BriscolaGame, player: int):
     offset = 0
 
     # hand
-    for i, v in enumerate(cards_embedding(game.players[player].hand, 3)):
+    for i, v in enumerate(sorted(cards_embedding(game.players[player].hand, 3))):
         full_embeddings[i + offset] = v
     offset += 3
 
@@ -27,6 +27,11 @@ def game_embedding(game: BriscolaGame, player: int):
 
     # briscola
     full_embeddings[offset] = card_embedding(game.briscola)
+    offset += 1
+
+    # briscola suit
+    briscola_suit_index = BriscolaCard.SUITS.index(game.briscola.suit)
+    full_embeddings[offset] = briscola_suit_index
     offset += 1
 
     # deck + other players hands (unaccounted for cards)
