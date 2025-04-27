@@ -8,7 +8,7 @@ from lib.briscola_env.embedding import (
     cards_embedding,
     card_embedding,
     card_reverse_embedding,
-    deck_embedding,
+    remaining_card_embedding,
 )
 
 
@@ -41,7 +41,7 @@ def test_deck_embedding():
     deck = BriscolaDeck([BriscolaCard("cups", 2)])
     expected = np.zeros(shape=(40,), dtype=int)
     expected[1] = 1
-    assert_array_equal(expected, deck_embedding(deck))
+    assert_array_equal(expected, remaining_card_embedding(deck))
 
     full_deck = BriscolaDeck()
-    assert_array_equal(np.ones(shape=(40,), dtype=int), deck_embedding(full_deck))
+    assert_array_equal(np.ones(shape=(40,), dtype=int), remaining_card_embedding(full_deck))

@@ -3,42 +3,49 @@ from typing import List
 from lib.briscola.briscola import BriscolaDeck
 from lib.briscola.game import BriscolaGame, BriscolaCard
 
-
-# Given a game and the current player, generate an embedding for the model
 # Our hand (3)
 # The trick so far (3)
 # The Briscola (1)
 # Cards still in the deck (40)
 # our points (1)
-# opponent points (3)
+EMBEDDING_SHAPE = (3 + 3 + 1 + 40 + 1,)
+
+
 def game_embedding(game: BriscolaGame, player: int):
-    full_embeddings = np.zeros(shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=np.uint8)
+    full_embeddings = np.zeros(shape=EMBEDDING_SHAPE, dtype=np.uint8)
     offset = 0
+
     # hand
     for i, v in enumerate(cards_embedding(game.players[player].hand, 3)):
         full_embeddings[i + offset] = v
     offset += 3
+
     # trick
     for i, v in enumerate(cards_embedding(game.trick, 3)):
         full_embeddings[i + offset] = v
     offset += 3
+
     # briscola
     full_embeddings[offset] = card_embedding(game.briscola)
     offset += 1
-    # deck
-    for i, v in enumerate(deck_embedding(game.deck)):
+
+    # deck + other players hands (unaccounted for cards)
+    for i, v in enumerate(remaining_card_embedding(game)):
         full_embeddings[i + offset] = v
     offset += 40
-    # player points
-    # TODO always put current player points first,
-    # then in order of play after current player
-    for i, v in enumerate(game.players):
-        full_embeddings[i + offset] = v.score()
+
+    # player's points
+    full_embeddings[offset] = game.players[player].score()
+
     return np.array(full_embeddings, dtype=np.uint8)
 
-def deck_embedding(deck: BriscolaDeck):
+
+def remaining_card_embedding(game: BriscolaGame):
+    deck = game.deck
     result = np.zeros(shape=(40,), dtype=int)
     existing_cards = set(card_embedding(c) for c in deck.cards)
+    for player in game.players:
+        existing_cards.update(set(card_embedding(c) for c in player.hand))
     for i in range(40):
         if i in existing_cards:
             result[i] = 1

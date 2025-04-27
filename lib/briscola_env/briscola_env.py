@@ -4,6 +4,7 @@ from gymnasium import spaces
 
 from lib.briscola.game import BriscolaGame
 from lib.briscola_env.embedding import (
+    EMBEDDING_SHAPE,
     card_reverse_embedding,
     game_embedding,
 )
@@ -35,7 +36,7 @@ class BriscolaEnv(AECEnv):
             name: spaces.Dict(
                 {
                     "observation": spaces.Box(
-                        low=0, high=255, shape=(3 + 3 + 1 + 40 + 1 + 3,), dtype=np.uint8
+                        low=0, high=255, shape=EMBEDDING_SHAPE, dtype=np.uint8
                     ),
                     "action_mask": spaces.Box(
                         low=0, high=1, shape=(40,), dtype=np.int8
@@ -63,7 +64,7 @@ class BriscolaEnv(AECEnv):
 
     def set_game_result(self):
         placements = self.game.leaders()
-        placement_rewards = [500, 100, 10, 0]
+        placement_rewards = [100, 30, 0, 0]
         for i in range(len(self.agents)):
             _score, p = placements[i]
             a = self.agents[p]
@@ -79,9 +80,7 @@ class BriscolaEnv(AECEnv):
         if self.game.should_score_trick():
             trick_points = sum(card.score() for card in self.game.trick)
             winner = self.game.score_trick()
-            agent_idx = self.agents.index(self.agent_selection)
-            if winner == agent_idx:
-                self.rewards[self.agents[winner]] += trick_points
+            self.rewards[self.agents[winner]] += trick_points
 
         if self.game.needs_redeal():
             self.game.redeal()
