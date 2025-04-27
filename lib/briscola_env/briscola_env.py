@@ -49,7 +49,8 @@ class BriscolaEnv(AECEnv):
         }
 
     def reset(self, seed=None, options=None):
-        self.game = BriscolaGame(players=4, goes_first=0, seed=seed)
+        starting_player = 0 if seed is None else seed % 4
+        self.game = BriscolaGame(players=4, goes_first=starting_player, seed=seed)
         self.agents = self.possible_agents[:]
         self.observations = {agent: self.observe(agent) for agent in self.agents}
         self.terminations = {agent: False for agent in self.agents}
@@ -58,39 +59,37 @@ class BriscolaEnv(AECEnv):
         self.rewards = {agent: 0 for agent in self.agents}
         self._cumulative_rewards = {name: 0 for name in self.agents}
 
-        self.agent_selection = self.agents[0]
+        self.agent_selection = self.agents[starting_player]
 
     def set_game_result(self):
         placements = self.game.leaders()
-        placement_rewards = [100, 80, 10, 0]
+        placement_rewards = [500, 100, 10, 0]
         for i in range(len(self.agents)):
             _score, p = placements[i]
             a = self.agents[p]
             self.rewards[a] += placement_rewards[i]
             self.terminations[a] = True
 
-    def update_rewards_with_trick_score(self, old_scores, new_scores):
-        print(self.agents, old_scores, new_scores)
-        for agent, old, new in zip(self.agents, old_scores, new_scores):
-            self.rewards[agent] += new - old
-
     def step(self, action):
         if self.terminations[self.agent_selection]:
             return self._was_dead_step(action)
+        
         played_card = card_reverse_embedding(action)
         self.game.play(played_card)
         if self.game.should_score_trick():
-            old_scores = list(p.score() for p in self.game.players)
-            self.game.score_trick()
-            new_scores = list(p.score() for p in self.game.players)
-            # self.update_rewards_with_trick_score(old_scores, new_scores)
+            trick_points = sum(card.score() for card in self.game.trick)
+            winner = self.game.score_trick()
+            agent_idx = self.agents.index(self.agent_selection)
+            if winner == agent_idx:
+                self.rewards[self.agents[winner]] += trick_points
+
         if self.game.needs_redeal():
             self.game.redeal()
+
         if self.game.game_over():
             self.set_game_result()
 
         self._accumulate_rewards()
-
         self.observations = {agent: self.observe(agent) for agent in self.agents}
         self.agent_selection = self.agents[self.game.action_on]
 
