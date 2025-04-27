@@ -105,3 +105,6 @@ class BriscolaEnv(AECEnv):
         # 40 possible cards to play
         # need to mask the space to the available cards in hand
         return self.action_spaces[agent]
+
+    def action_mask(self):
+        return self.observe(self.agent_selection)["action_mask"]

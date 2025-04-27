@@ -11,6 +11,7 @@ dependencies = [
     "pettingzoo>=1.25.0",
     "pygame>=2.6.1",
     "rlcard>=1.2.0",
+    "sb3-contrib>=2.6.0",
     "stable-baselines3>=2.5.0",
     "supersuit>=3.10.0",
 ]
