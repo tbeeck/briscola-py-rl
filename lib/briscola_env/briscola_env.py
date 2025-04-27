@@ -22,7 +22,8 @@ class BriscolaEnv(AECEnv):
 
     def __init__(self):
         super().__init__()
-        self.possible_agents = [f"player_{i}" for i in range(4)]
+        self.max_players = 4
+        self.possible_agents = [f"player_{i}" for i in range(self.max_players)]
         self.render_mode = "ansi"
         # Tips on observation space embedding:
         # https://rlcard.org/games.html
@@ -50,13 +51,20 @@ class BriscolaEnv(AECEnv):
         }
 
     def reset(self, seed=None, options=None):
-        starting_player = 0 if seed is None else seed % 4
-        self.game = BriscolaGame(players=4, goes_first=starting_player, seed=seed)
-        self.agents = self.possible_agents[:]
+        player_count = (
+            self.max_players
+            if options is None or options.get("player_count") is None
+            else options.get("player_count")
+        )
+        starting_player = 0 if seed is None else seed % player_count
+        self.game = BriscolaGame(
+            players=player_count, goes_first=starting_player, seed=seed
+        )
+        self.agents = self.possible_agents[:][:player_count]
         self.observations = {agent: self.observe(agent) for agent in self.agents}
         self.terminations = {agent: False for agent in self.agents}
         self.truncations = {agent: False for agent in self.agents}
-        self.infos = {agent: {} for agent in self.agents}
+        self.infos = {agent: {"tricks": 0, "wins": 0} for agent in self.agents}
         self.rewards = {agent: 0 for agent in self.agents}
         self._cumulative_rewards = {name: 0 for name in self.agents}
 
@@ -64,9 +72,11 @@ class BriscolaEnv(AECEnv):
 
     def set_game_result(self):
         placements = self.game.leaders()
-        placement_rewards = [100, 30, 0, 0]
-        for i in range(len(self.agents)):
+        placement_rewards = [200, 50, 0, 0]
+        for i in range(len(placements)):
             _score, p = placements[i]
+            if i == 0:
+                self.infos[self.agents[p]]["wins"] += 1
             a = self.agents[p]
             self.rewards[a] += placement_rewards[i]
             self.terminations[a] = True
@@ -74,13 +84,14 @@ class BriscolaEnv(AECEnv):
     def step(self, action):
         if self.terminations[self.agent_selection]:
             return self._was_dead_step(action)
-        self._cumulative_rewards[self.agent_selection] = 0 
+        self._cumulative_rewards[self.agent_selection] = 0
         played_card = card_reverse_embedding(action)
         self.game.play(played_card)
         if self.game.should_score_trick():
             trick_points = sum(card.score() for card in self.game.trick)
             winner = self.game.score_trick()
             self.rewards[self.agents[winner]] += trick_points
+            self.infos[self.agents[winner]]["tricks"] += 1
 
         if self.game.needs_redeal():
             self.game.redeal()
