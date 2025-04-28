@@ -5,6 +5,7 @@ from gymnasium import spaces
 from lib.briscola.game import BriscolaGame
 from lib.briscola_env.embedding import (
     EMBEDDING_SHAPE,
+    card_embedding,
     card_reverse_embedding,
     game_embedding,
 )
@@ -59,7 +60,7 @@ class BriscolaEnv(AECEnv):
 
     def set_game_result(self):
         placements = self.game.leaders()
-        placement_rewards = [200, 50, 0, 0]
+        placement_rewards = [120, 0, 0, 0]
         for i in range(len(placements)):
             _score, p = placements[i]
             if i == 0:
@@ -92,15 +93,14 @@ class BriscolaEnv(AECEnv):
 
     def observe(self, agent):
         agent_id = player_id(agent)
-        player_hand = self.game.players[agent_id].hand
-
         hand_mask = np.zeros(40, dtype=np.int8)
-        for i in range(40):
-            if card_reverse_embedding(i) in player_hand:
-                hand_mask[i] = 1
+        player_hand = (card_embedding(c) for c in self.game.players[agent_id].hand)
+        for c in player_hand:
+            hand_mask[c] = 1
+
         return {
             "observation": game_embedding(self.game, agent_id),
-            "action_mask": np.array(hand_mask, dtype=np.int8),
+            "action_mask": hand_mask
         }
 
     def observation_space(self, agent):
