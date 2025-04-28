@@ -20,19 +20,11 @@ class BriscolaEnv(AECEnv):
 
     metadata = {"name": "briscola", "render_modes": ["ansi"], "is_parallelizable": True}
 
-    def __init__(self):
+    def __init__(self, num_players=4):
         super().__init__()
-        self.max_players = 4
-        self.possible_agents = [f"player_{i}" for i in range(self.max_players)]
+        self.num_players = num_players
+        self.possible_agents = [f"player_{i}" for i in range(self.num_players)]
         self.render_mode = "ansi"
-        # Tips on observation space embedding:
-        # https://rlcard.org/games.html
-        # Our hand (3)
-        # The trick so far (3)
-        # The Briscola (1)
-        # Cards already played (40)
-        # our points (1)
-        # opponent points (3)
         self.observation_spaces = {
             name: spaces.Dict(
                 {
@@ -51,16 +43,11 @@ class BriscolaEnv(AECEnv):
         }
 
     def reset(self, seed=None, options=None):
-        player_count = (
-            self.max_players
-            if options is None or options.get("player_count") is None
-            else options.get("player_count")
-        )
-        starting_player = 0 if seed is None else seed % player_count
+        starting_player = 0 if seed is None else seed % self.num_players
         self.game = BriscolaGame(
-            players=player_count, goes_first=starting_player, seed=seed
+            players=self.num_players, goes_first=starting_player, seed=seed
         )
-        self.agents = self.possible_agents[:][:player_count]
+        self.agents = self.possible_agents[:][:self.num_players]
         self.observations = {agent: self.observe(agent) for agent in self.agents}
         self.terminations = {agent: False for agent in self.agents}
         self.truncations = {agent: False for agent in self.agents}
