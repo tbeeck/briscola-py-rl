@@ -11,3 +11,4 @@ wheels/
 
 # models
 *.zip
+!/models/*.zip
