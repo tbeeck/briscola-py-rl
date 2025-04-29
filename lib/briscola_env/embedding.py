@@ -3,12 +3,12 @@ from typing import List
 from lib.briscola.briscola import BriscolaDeck
 from lib.briscola.game import BriscolaGame, BriscolaCard
 
-# Our hand (3)
+# Our hand (40)
 # The trick so far (3)
 # The Briscola (1)
-# Cards still in the deck (40)
+# Unseen cards (40)
 # our points (1)
-EMBEDDING_SHAPE = (3 + 3 + 1 + 1 + 40 + 1,)
+EMBEDDING_SHAPE = (40 + 3 + 1 + 1 + 40,)
 
 
 def game_embedding(game: BriscolaGame, player: int):
@@ -16,7 +16,7 @@ def game_embedding(game: BriscolaGame, player: int):
     offset = 0
 
     # hand
-    for i, v in enumerate(sorted(cards_embedding(game.players[player].hand, 3))):
+    for i, v in enumerate(full_cards_embedding(game.players[player].hand)):
         full_embeddings[i + offset] = v
     offset += 3
 
@@ -39,22 +39,14 @@ def game_embedding(game: BriscolaGame, player: int):
         full_embeddings[i + offset] = v
     offset += 40
 
-    # player's points
-    full_embeddings[offset] = game.players[player].score()
-
     return np.array(full_embeddings, dtype=np.uint8)
 
 
 def remaining_card_embedding(game: BriscolaGame):
-    deck = game.deck
-    result = np.zeros(shape=(40,), dtype=int)
-    existing_cards = set(card_embedding(c) for c in deck.cards)
+    existing_cards = list(game.deck.cards)
     for player in game.players:
-        existing_cards.update(set(card_embedding(c) for c in player.hand))
-    for i in range(40):
-        if i in existing_cards:
-            result[i] = 1
-    return result
+        existing_cards += list(player.hand)
+    return full_cards_embedding(existing_cards) 
 
 
 def cards_embedding(cards: List[BriscolaCard], length: int):
@@ -77,3 +69,11 @@ def card_reverse_embedding(i: int) -> BriscolaCard:
     i -= suit_index * 10
     rank = i + 1
     return BriscolaCard(BriscolaCard.SUITS[suit_index], rank)
+
+def full_cards_embedding(cards: list[BriscolaCard]):
+    result = np.zeros(shape=(40,), dtype=int)
+    have_cards = set(card_embedding(c) for c in cards)
+    for i in range(40):
+        if i in have_cards:
+            result[i] = 1
+    return result
