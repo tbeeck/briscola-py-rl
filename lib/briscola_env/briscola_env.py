@@ -1,4 +1,3 @@
-import functools
 import numpy as np
 from gymnasium import spaces
 
@@ -44,10 +43,7 @@ class BriscolaEnv(AECEnv):
         }
 
     def reset(self, seed=None, options=None):
-        starting_player = 0
-        if options:
-            starting_player = options.get("starting_player", 0)
-
+        starting_player = np.random.choice(2, seed=seed)
         self.game = BriscolaGame(
             players=self.num_players, goes_first=starting_player, seed=seed
         )
