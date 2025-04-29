@@ -4,11 +4,11 @@ from numpy.testing import assert_array_equal
 from lib.briscola.briscola import BriscolaCard, BriscolaDeck
 from lib.briscola.game import BriscolaGame
 from lib.briscola_env.embedding import (
+    full_cards_embedding,
     game_embedding,
     cards_embedding,
     card_embedding,
     card_reverse_embedding,
-    remaining_card_embedding,
 )
 
 
@@ -41,7 +41,7 @@ def test_deck_embedding():
     deck = BriscolaDeck([BriscolaCard("cups", 2)])
     expected = np.zeros(shape=(40,), dtype=int)
     expected[1] = 1
-    assert_array_equal(expected, remaining_card_embedding(deck))
+    assert_array_equal(expected, full_cards_embedding(deck.cards))
 
     full_deck = BriscolaDeck()
-    assert_array_equal(np.ones(shape=(40,), dtype=int), remaining_card_embedding(full_deck))
+    assert_array_equal(np.ones(shape=(40,), dtype=int), full_cards_embedding(full_deck.cards))

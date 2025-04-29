@@ -32,7 +32,7 @@ class BriscolaCard:
         Returns the strength of a card, used to determine a trick winner.
         """
         score_value = self.score()
-        return score_value + 10 if score_value > 0 else self.rank
+        return score_value + 20 if score_value > 0 else self.rank
 
     def __str__(self):
         rank_names = {1: "ace", 8: "jack", 9: "knight", 10: "king"}

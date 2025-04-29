@@ -83,10 +83,9 @@ class BriscolaGame:
                 winning_card = card
         if not winning_card:
             raise Exception("no winning card")
-
-        winning_player_index = (
-            self.action_on + self.trick[::-1].index(winning_card)
-        ) % len(self.players)
+        # Action_on is the starting player, i.e. who played the first card in the trick
+        who_played = [(self.action_on + i) % len(self.players) for i in range(len(self.players))]
+        winning_player_index = who_played[self.trick.index(winning_card)]
         return winning_player_index, winning_card
 
     def redeal(self):
@@ -114,7 +113,7 @@ class BriscolaGame:
         return self.briscola.suit
 
     def lead_suit(self) -> Optional[str]:
-        return self.trick[-1].suit if self.trick else None
+        return self.trick[0].suit if self.trick else None
 
     def should_score_trick(self) -> bool:
         return len(self.trick) == len(self.players)
@@ -122,7 +121,7 @@ class BriscolaGame:
     def game_over(self) -> bool:
         return len(self.deck.cards) == 0 and all(len(p.hand) == 0 for p in self.players)
 
-    def leaders(self) -> List[BriscolaPlayer]:
+    def leaders(self) -> List[tuple[int, int]]:
         scores = [(p.score(), i) for i, p in enumerate(self.players)]
         return sorted(scores, reverse=True)
 
@@ -130,6 +129,8 @@ class BriscolaGame:
         result = []
         for i in range(len(self.players)):
             result.append(f"Player {i}: {self.players[i]}")
+        result.append(f"Briscola: {self.briscola}")
         result.append(f"Action on: {self.action_on}")
         result.append(f"Deck: {len(self.deck.cards)}, Trick: {self.trick}")
+        result.append("Scores: " + " ".join(str(p.score()) for p in self.players))
         return "\n".join(result)
