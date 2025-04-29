@@ -44,14 +44,15 @@ class BriscolaEnv(AECEnv):
         }
 
     def reset(self, seed=None, options=None):
-        starting_player = 0
+        seed = 100
+        starting_player = 1
         if options:
             starting_player = options.get("starting_player", 0)
 
         self.game = BriscolaGame(
             players=self.num_players, goes_first=starting_player, seed=seed
         )
-        print(seed, self.game.deck, self.game.players)
+
         self.agents = self.possible_agents[:][:self.num_players]
         self.observations = {agent: self.observe(agent) for agent in self.agents}
         self.terminations = {agent: False for agent in self.agents}
