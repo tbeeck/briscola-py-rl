@@ -43,7 +43,7 @@ class BriscolaEnv(AECEnv):
         }
 
     def reset(self, seed=None, options=None):
-        starting_player = np.random.choice(2, seed=seed)
+        starting_player = np.random.default_rng(seed).choice(2)
         self.game = BriscolaGame(
             players=self.num_players, goes_first=starting_player, seed=seed
         )
