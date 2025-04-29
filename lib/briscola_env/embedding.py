@@ -18,7 +18,7 @@ def game_embedding(game: BriscolaGame, player: int):
     # hand
     for i, v in enumerate(full_cards_embedding(game.players[player].hand)):
         full_embeddings[i + offset] = v
-    offset += 3
+    offset += 40
 
     # trick
     for i, v in enumerate(cards_embedding(game.trick, 3)):
