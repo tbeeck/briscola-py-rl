@@ -8,7 +8,7 @@ from lib.briscola.game import BriscolaGame, BriscolaCard
 # The Briscola (1)
 # Unseen cards (40)
 # our points (1)
-EMBEDDING_SHAPE = (40 + 3 + 1 + 1 + 40,)
+EMBEDDING_SHAPE = (40 + 3 + 1 + 1 + 1 + 40,)
 
 
 def game_embedding(game: BriscolaGame, player: int):
@@ -24,6 +24,10 @@ def game_embedding(game: BriscolaGame, player: int):
     for i, v in enumerate(cards_embedding(game.trick, 3)):
         full_embeddings[i + offset] = v
     offset += 3
+
+    # trick length
+    full_embeddings[offset] = len(game.trick)
+    offset += 1
 
     # briscola
     full_embeddings[offset] = card_embedding(game.briscola)
