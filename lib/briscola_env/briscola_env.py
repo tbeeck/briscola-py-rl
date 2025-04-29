@@ -44,8 +44,7 @@ class BriscolaEnv(AECEnv):
         }
 
     def reset(self, seed=None, options=None):
-        seed = 100
-        starting_player = 1
+        starting_player = 0
         if options:
             starting_player = options.get("starting_player", 0)
 
