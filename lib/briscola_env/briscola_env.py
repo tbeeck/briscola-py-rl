@@ -6,6 +6,7 @@ from lib.briscola_env.embedding import (
     EMBEDDING_SHAPE,
     card_embedding,
     card_reverse_embedding,
+    full_cards_embedding,
     game_embedding,
 )
 from pettingzoo import AECEnv
@@ -48,7 +49,7 @@ class BriscolaEnv(AECEnv):
             players=self.num_players, goes_first=starting_player, seed=seed
         )
 
-        self.agents = self.possible_agents[:][:self.num_players]
+        self.agents = self.possible_agents[:][: self.num_players]
         self.observations = {agent: self.observe(agent) for agent in self.agents}
         self.terminations = {agent: False for agent in self.agents}
         self.truncations = {agent: False for agent in self.agents}
@@ -60,7 +61,7 @@ class BriscolaEnv(AECEnv):
 
     def set_game_result(self):
         placements = self.game.leaders()
-        placement_rewards = [120, 0, 0, 0]
+        placement_rewards = [0, 0, 0, 0]
         for i in range(len(placements)):
             _score, p = placements[i]
             if i == 0:
@@ -68,6 +69,13 @@ class BriscolaEnv(AECEnv):
             a = self.agents[p]
             self.rewards[a] += placement_rewards[i]
             self.terminations[a] = True
+
+    def set_trick_result(self, trick_winner_index, points):
+        self.rewards[self.agents[trick_winner_index]] += points
+        self.infos[self.agents[trick_winner_index]]["tricks"] += 1
+        for i in range(len(self.agents)):
+            if i != trick_winner_index:
+                self.rewards[self.agents[i]] -= points
 
     def step(self, action):
         if self.terminations[self.agent_selection]:
@@ -78,8 +86,7 @@ class BriscolaEnv(AECEnv):
         if self.game.should_score_trick():
             trick_points = sum(card.score() for card in self.game.trick)
             winner = self.game.score_trick()
-            self.rewards[self.agents[winner]] += trick_points
-            self.infos[self.agents[winner]]["tricks"] += 1
+            self.set_trick_result(winner, trick_points)
 
         if self.game.needs_redeal():
             self.game.redeal()
@@ -93,14 +100,13 @@ class BriscolaEnv(AECEnv):
 
     def observe(self, agent):
         agent_id = player_id(agent)
-        hand_mask = np.zeros(40, dtype=np.int8)
-        player_hand = (card_embedding(c) for c in self.game.players[agent_id].hand)
-        for c in player_hand:
-            hand_mask[c] = 1
+        player_hand = np.array(
+            full_cards_embedding(self.game.players[agent_id].hand), dtype=np.int8
+        )
 
         return {
             "observation": game_embedding(self.game, agent_id),
-            "action_mask": hand_mask
+            "action_mask": player_hand,
         }
 
     def observation_space(self, agent):
