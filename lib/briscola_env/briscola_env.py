@@ -61,7 +61,7 @@ class BriscolaEnv(AECEnv):
 
     def set_game_result(self):
         placements = self.game.leaders()
-        placement_rewards = [0, 0, 0, 0]
+        placement_rewards = [120, 0, 0, 0]
         for i in range(len(placements)):
             _score, p = placements[i]
             if i == 0:
