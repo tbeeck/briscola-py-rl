@@ -84,9 +84,12 @@ class BriscolaGame:
         if not winning_card:
             raise Exception("no winning card")
         # Action_on is the starting player, i.e. who played the first card in the trick
-        who_played = [(self.action_on + i) % len(self.players) for i in range(len(self.players))]
+        who_played = self.trick_order()
         winning_player_index = who_played[self.trick.index(winning_card)]
         return winning_player_index, winning_card
+
+    def trick_order(self):
+        return [(self.action_on + i) % len(self.players) for i in range(len(self.players))]
 
     def redeal(self):
         if all(len(p.hand) < 3 for p in self.players):

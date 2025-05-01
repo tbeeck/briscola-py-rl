@@ -1,10 +1,10 @@
 import numpy as np
 from gymnasium import spaces
 
+from lib.briscola.briscola import BriscolaCard
 from lib.briscola.game import BriscolaGame
 from lib.briscola_env.embedding import (
     EMBEDDING_SHAPE,
-    card_embedding,
     card_reverse_embedding,
     full_cards_embedding,
     game_embedding,
@@ -70,12 +70,15 @@ class BriscolaEnv(AECEnv):
             self.rewards[a] += placement_rewards[i]
             self.terminations[a] = True
 
-    def set_trick_result(self, trick_winner_index, points):
-        self.rewards[self.agents[trick_winner_index]] += points
-        self.infos[self.agents[trick_winner_index]]["tricks"] += 1
-        for i in range(len(self.agents)):
-            if i != trick_winner_index:
-                self.rewards[self.agents[i]] -= points
+    def set_trick_result(self, winner_idx, who_played_what: list[tuple[int, BriscolaCard]]):
+        trick_points = sum(card.score() for _, card in who_played_what)
+        self.rewards[self.agents[winner_idx]] += trick_points
+        self.infos[self.agents[winner_idx]]["tricks"] += 1
+        for player_idx, card in who_played_what:
+            if player_idx == winner_idx:
+                continue
+            # Punish for playing a valuable card and not winning the trick
+            self.rewards[self.agents[player_idx]] -= card.score()
 
     def step(self, action):
         if self.terminations[self.agent_selection]:
@@ -84,9 +87,9 @@ class BriscolaEnv(AECEnv):
         played_card = card_reverse_embedding(action)
         self.game.play(played_card)
         if self.game.should_score_trick():
-            trick_points = sum(card.score() for card in self.game.trick)
+            who_played_what = list(zip(self.game.trick_order(), list(self.game.trick)))
             winner = self.game.score_trick()
-            self.set_trick_result(winner, trick_points)
+            self.set_trick_result(winner, who_played_what)
 
         if self.game.needs_redeal():
             self.game.redeal()
