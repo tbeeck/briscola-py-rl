@@ -12,3 +12,5 @@ wheels/
 # models
 *.zip
 !/models/*.zip
+*.onnx
+!/models/*.onnx
