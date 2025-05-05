@@ -14,3 +14,7 @@ wheels/
 !/models/*.zip
 *.onnx
 !/models/*.onnx
+
+# mlflow
+mlruns/
+mlartifacts/
