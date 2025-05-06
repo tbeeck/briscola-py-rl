@@ -1,14 +1,8 @@
 import numpy as np
 from typing import List
-from lib.briscola.briscola import BriscolaDeck
 from lib.briscola.game import BriscolaGame, BriscolaCard
 
-# Our hand (40)
-# The trick so far (3)
-# The Briscola (1)
-# Unseen cards (40)
-# our points (1)
-EMBEDDING_SHAPE = (40 + 3 + 1 + 1 + 1 + 40,)
+EMBEDDING_SHAPE = (40 + 3 + 1 + 1 + 1 + 1 + 40,)
 
 
 def game_embedding(game: BriscolaGame, player: int):
@@ -25,6 +19,12 @@ def game_embedding(game: BriscolaGame, player: int):
         full_embeddings[i + offset] = v
     offset += 3
 
+    # trick suit
+    full_embeddings[offset] = 0
+    if len(game.trick) > 0:
+        full_embeddings[offset] = BriscolaCard.SUITS.index(game.trick[0].suit) + 1
+    offset += 1
+
     # trick length
     full_embeddings[offset] = len(game.trick)
     offset += 1
@@ -34,7 +34,7 @@ def game_embedding(game: BriscolaGame, player: int):
     offset += 1
 
     # briscola suit
-    briscola_suit_index = BriscolaCard.SUITS.index(game.briscola.suit)
+    briscola_suit_index = BriscolaCard.SUITS.index(game.briscola.suit) + 1
     full_embeddings[offset] = briscola_suit_index
     offset += 1
 
@@ -50,7 +50,7 @@ def remaining_card_embedding(game: BriscolaGame):
     existing_cards = list(game.deck.cards)
     for player in game.players:
         existing_cards += list(player.hand)
-    return full_cards_embedding(existing_cards) 
+    return full_cards_embedding(existing_cards)
 
 
 def cards_embedding(cards: List[BriscolaCard], length: int):
@@ -73,6 +73,7 @@ def card_reverse_embedding(i: int) -> BriscolaCard:
     i -= suit_index * 10
     rank = i + 1
     return BriscolaCard(BriscolaCard.SUITS[suit_index], rank)
+
 
 def full_cards_embedding(cards: list[BriscolaCard]):
     result = np.zeros(shape=(40,), dtype=int)
