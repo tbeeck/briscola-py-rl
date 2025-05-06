@@ -1,5 +1,6 @@
 import glob
 import os
+import time
 
 from pettingzoo.test import api_test
 from sb3_contrib import MaskablePPO
@@ -8,15 +9,15 @@ from lib.briscola_env.briscola_env import BriscolaEnv
 from lib.briscola_env.embedding import card_embedding, card_reverse_embedding
 
 
-
 PLAYER_COUNT = 2
-NUM_TRAINING_STEPS = 1_000_000
-NUM_EVAL_GAMES = 1000
+
 
 def make_env():
     return BriscolaEnv(num_players=PLAYER_COUNT)
 
+
 api_test(make_env(), num_cycles=1000)
+
 
 def play_1v1(player_position):
     # Evaluate a trained agent vs a random agent
@@ -45,7 +46,9 @@ def play_1v1(player_position):
         if agent == env.possible_agents[player_position]:
             print("----")
             print(env.game)
-            card_idx = int(input(f"Select a card to play (player {player_position}): "))-1
+            card_idx = (
+                int(input(f"Select a card to play (player {player_position}): ")) - 1
+            )
             card = env.game.players[player_position].hand[card_idx]
             act = card_embedding(card)
             print("You played", card)
@@ -56,9 +59,11 @@ def play_1v1(player_position):
                 )[0]
             )
             print("AI played", card_reverse_embedding(act))
+        time.sleep(0.2)
         env.step(act)
-        
+
     env.close()
 
+
 if __name__ == "__main__":
-	play_1v1(0)
+    play_1v1(0)
