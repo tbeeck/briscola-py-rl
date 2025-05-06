@@ -113,4 +113,4 @@ class BriscolaPlayer:
         self.pile.extend(cards)
 
     def __repr__(self):
-        return f"Player(hand={self.hand}, pile={self.pile})"
+        return f"Player(hand={self.hand}, pile={len(self.pile)})"
